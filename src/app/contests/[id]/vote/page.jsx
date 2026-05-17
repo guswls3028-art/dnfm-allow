@@ -99,7 +99,16 @@ export default function ContestVotePage({ params }) {
     try {
       await contestsApi.vote(contest.id, { entryId: selected });
       setVoted(true);
-      setVoteCounts((prev) => ({ ...prev, [selected]: (prev[selected] || 0) + 1 }));
+      // 표시 득표수는 서버 권위값으로 재조회(클라 증가 추정 금지 — 1인1표 정합).
+      try {
+        const data = await contestsApi.tally(contest.id);
+        const tally = Array.isArray(data?.tally) ? data.tally : [];
+        setVoteCounts(
+          Object.fromEntries(tally.map((row) => [row.entryId, Number(row.votes) || 0])),
+        );
+      } catch {
+        // tally 재조회 실패해도 투표 자체는 성공 — 다음 로드에서 정정.
+      }
     } catch (err) {
       if (err instanceof ApiError) setError(err);
       else setError({ message: err?.message || "투표 실패" });
