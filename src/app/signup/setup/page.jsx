@@ -16,7 +16,7 @@ function validateDisplayName(v) {
   return null;
 }
 
-function useAvailability(value) {
+function useAvailability(value, originalValue) {
   const [state, setState] = useState({ status: "idle" });
   const timer = useRef(null);
   const reqId = useRef(0);
@@ -24,6 +24,10 @@ function useAvailability(value) {
     if (timer.current) clearTimeout(timer.current);
     if (!value) {
       setState({ status: "idle" });
+      return;
+    }
+    if (originalValue && value === originalValue) {
+      setState({ status: "ok" });
       return;
     }
     const err = validateDisplayName(value);
@@ -46,7 +50,7 @@ function useAvailability(value) {
       }
     }, 500);
     return () => timer.current && clearTimeout(timer.current);
-  }, [value]);
+  }, [value, originalValue]);
   return state;
 }
 
@@ -91,7 +95,12 @@ function SetupInner() {
     }
   }, [loading, user, router, suggested]);
 
-  const state = useAvailability(displayName.trim());
+  const originalDisplayName = useMemo(() => {
+    const raw = user?.displayName || "";
+    return /^(google|kakao)_/.test(raw) ? "" : raw;
+  }, [user]);
+
+  const state = useAvailability(displayName.trim(), originalDisplayName);
   const msg = hintLabel(state);
   const canSubmit = state.status === "ok" && !submitting;
 

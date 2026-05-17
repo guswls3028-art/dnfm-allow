@@ -79,21 +79,21 @@ export default function ViewerPlatformField({ value, onChange, idPrefix = "viewe
         </div>
       </fieldset>
 
-      <div className="field">
-        <label className="field__label" htmlFor={`${idPrefix}-nick`}>
+      <div className="form-row viewer-platform-field__nickname">
+        <label htmlFor={`${idPrefix}-nick`}>
           시청자 닉네임 <span className="viewer-platform-field__hint">(선택)</span>
         </label>
         <input
           id={`${idPrefix}-nick`}
-          className="input"
+          className="form-input"
           placeholder="방송에서 사용하는 채팅 닉네임"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
           maxLength={32}
         />
-        <span className="field__hint">
+        <small>
           사이트 닉네임과 다르게 쓰셔도 됩니다. 콘테스트 당첨자 안내 등에 활용.
-        </span>
+        </small>
       </div>
     </div>
   );

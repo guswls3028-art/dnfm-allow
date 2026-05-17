@@ -1209,7 +1209,8 @@ button {
   color: var(--danger-ink, #8a1c1c);
 }
 
-.avail-hint--checking {
+.avail-hint--checking,
+.avail-hint--muted {
   background: var(--paper);
   color: var(--ink-soft);
 }
