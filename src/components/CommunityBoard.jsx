@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { communityTabs } from "@/lib/content";
 import { contests as contestsApi, posts as postsApi } from "@/lib/api-client";
+import BoardActionIcon from "@/components/BoardActionIcon";
 
 /**
  * CommunityBoard — 던파 공홈 "커뮤니티+" 박스. 탭 4종 + 최근 글 목록.
@@ -163,7 +164,7 @@ export default function CommunityBoard() {
               {r.category}
             </span>
             <Link href={r.href} className="community-board__title">
-              {r.pinned && <span className="community-board__pin" aria-hidden="true">📌</span>}
+              {r.pinned && <BoardActionIcon name="pin" className="community-board__pin" />}
               {r.title}
             </Link>
             <span className="community-board__meta">{r.author}</span>

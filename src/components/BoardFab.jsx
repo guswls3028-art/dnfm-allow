@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import BoardActionIcon from "@/components/BoardActionIcon";
 
 /**
  * hurock 게시판 우측 하단 floating action.
@@ -33,7 +34,7 @@ export default function BoardFab({ href = "/board/new" }) {
           aria-label="맨 위로"
           title="맨 위로"
         >
-          ↑
+          <BoardActionIcon name="recommend" />
         </button>
       ) : null}
       <Link
@@ -42,7 +43,7 @@ export default function BoardFab({ href = "/board/new" }) {
         aria-label="글쓰기"
         title="글쓰기"
       >
-        ✏
+        <BoardActionIcon name="edit" />
       </Link>
     </div>
   );

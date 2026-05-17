@@ -9,6 +9,7 @@ import AuthorCard from "@/components/AuthorCard";
 import BoardFab from "@/components/BoardFab";
 import ReportButton from "@/components/ReportButton";
 import MarkdownBody from "@/components/MarkdownBody";
+import BoardActionIcon from "@/components/BoardActionIcon";
 import {
   ApiError,
   buildApiUrl,
@@ -330,7 +331,7 @@ export default function BoardDetailPage({ params }) {
               ← 허락방 목록
             </Link>
             <h1>
-              {post.pinned ? "📌 " : ""}
+              {post.pinned ? <BoardActionIcon name="pin" className="board-title-pin" /> : null}
               {post.title}
             </h1>
             <p>
@@ -350,14 +351,16 @@ export default function BoardDetailPage({ params }) {
             {canDeletePostAsAuthor ? (
               <Link
                 href={`/board/${encodeURIComponent(post.id || id)}/edit`}
-                className="btn btn-sm"
+                className="btn btn-sm board-tool"
               >
-                ✏ 수정
+                <BoardActionIcon name="edit" />
+                수정
               </Link>
             ) : null}
             {canDeletePostAsAuthor ? (
-              <button type="button" className="btn btn-sm" onClick={handleDeletePost}>
-                🗑 삭제
+              <button type="button" className="btn btn-sm board-tool" onClick={handleDeletePost}>
+                <BoardActionIcon name="trash" />
+                삭제
               </button>
             ) : null}
             {userIsAdmin ? (
@@ -477,7 +480,8 @@ export default function BoardDetailPage({ params }) {
                     }}
                   >
                     <strong style={{ fontSize: "0.85rem" }}>
-                      ↳ {formatAuthor(top, top.authorDisplayName)} 에게 답글
+                      <BoardActionIcon name="reply" className="board-comment-reply-mark" />
+                      {formatAuthor(top, top.authorDisplayName)} 에게 답글
                         </strong>
                         {!isAuthed ? (
                           <div
@@ -668,11 +672,13 @@ export default function BoardDetailPage({ params }) {
                   >
                     {np.title || "(제목 없음)"}
                   </span>
-                  <span style={{ color: "var(--muted)", fontSize: "0.78rem", flexShrink: 0 }}>
-                    💬 {np.commentCount ?? 0}
+                  <span className="board-next-posts__stat" style={{ color: "var(--muted)", fontSize: "0.78rem", flexShrink: 0 }}>
+                    <BoardActionIcon name="message" />
+                    {np.commentCount ?? 0}
                   </span>
-                  <span style={{ color: "var(--muted)", fontSize: "0.78rem", flexShrink: 0 }}>
-                    👁 {np.viewCount ?? 0}
+                  <span className="board-next-posts__stat" style={{ color: "var(--muted)", fontSize: "0.78rem", flexShrink: 0 }}>
+                    <BoardActionIcon name="eye" />
+                    {np.viewCount ?? 0}
                   </span>
                 </Link>
               </li>
@@ -703,55 +709,52 @@ export default function BoardDetailPage({ params }) {
         }}
       >
         <div style={{ flex: 1 }}>
-          <div
-            className="board-comment-meta"
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              marginBottom: 4,
-            }}
-          >
-            {isReply ? <span style={{ color: "var(--muted)" }}>↳</span> : null}
-            <strong style={{ fontFamily: "var(--font-display)" }}>
-              {formatAuthor(c, c.authorDisplayName || c.user?.displayName)}
-            </strong>
-            <span style={{ color: "var(--muted)", fontSize: "0.78rem" }}>
-              {formatTime(c.createdAt)}
-            </span>
-            <span className="board-comment-actions" style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
-              <ReportButton targetType="comment" targetId={c.id} small />
+          <div className="board-comment-header">
+            <div className="board-comment-meta">
+              {isReply ? <BoardActionIcon name="reply" className="board-comment-reply-mark" /> : null}
+              <strong style={{ fontFamily: "var(--font-display)" }}>
+                {formatAuthor(c, c.authorDisplayName || c.user?.displayName)}
+              </strong>
+              <span className="board-comment-time">
+                {formatTime(c.createdAt)}
+              </span>
+            </div>
+            <div className="board-comment-actions" aria-label="댓글 도구">
+              <ReportButton targetType="comment" targetId={c.id} small compact />
               {!isReply && !isEditing ? (
                 <button
                   type="button"
-                  className="btn btn-xs"
+                  className="btn btn-xs board-tool board-tool--icon"
                   onClick={() => startReply(c)}
                   title="답글"
+                  aria-label="답글"
                 >
-                  ↳
+                  <BoardActionIcon name="reply" />
                 </button>
               ) : null}
               {canEditDelete && !isEditing ? (
                 <button
                   type="button"
-                  className="btn btn-xs"
+                  className="btn btn-xs board-tool board-tool--icon"
                   onClick={() => startEditComment(c)}
                   title="댓글 수정"
+                  aria-label="댓글 수정"
                 >
-                  ✏
+                  <BoardActionIcon name="edit" />
                 </button>
               ) : null}
               {canEditDelete ? (
                 <button
                   type="button"
-                  className="btn btn-xs"
+                  className="btn btn-xs board-tool board-tool--icon"
                   onClick={() => handleDeleteComment(c)}
                   title="댓글 삭제"
+                  aria-label="댓글 삭제"
                 >
-                  🗑
+                  <BoardActionIcon name="trash" />
                 </button>
               ) : null}
-            </span>
+            </div>
           </div>
           {isEditing ? (
             <div style={{ display: "grid", gap: 6 }}>

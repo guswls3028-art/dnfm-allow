@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { reports as reportsApi, ApiError } from "@/lib/api-client";
+import BoardActionIcon from "@/components/BoardActionIcon";
 
 const REASONS = [
   { value: "spam", label: "도배/광고" },
@@ -19,7 +20,7 @@ const REASONS = [
  * 신고 버튼 + 모달 (hurock 톤 — 핫핑크/노랑/시안 + sticker 느낌).
  * 비회원도 신고 가능. backend dedup: 회원 unique / 비회원 fingerprint.
  */
-export default function ReportButton({ targetType, targetId, small }) {
+export default function ReportButton({ targetType, targetId, small, compact = false }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState(REASONS[0].value);
   const [detail, setDetail] = useState("");
@@ -58,11 +59,17 @@ export default function ReportButton({ targetType, targetId, small }) {
     <>
       <button
         type="button"
-        className={small ? "btn btn-ghost btn-xs" : "btn btn-ghost btn-sm"}
+        className={[
+          small ? "btn btn-ghost btn-xs" : "btn btn-ghost btn-sm",
+          "board-tool report-button",
+          compact ? "board-tool--icon" : "",
+        ].filter(Boolean).join(" ")}
         onClick={() => setOpen(true)}
         title="신고하기"
+        aria-label={compact ? "신고하기" : undefined}
       >
-        🚩 신고
+        <BoardActionIcon name="report" />
+        {compact ? <span className="sr-only">신고</span> : "신고"}
       </button>
       {open ? (
         <div
@@ -102,7 +109,9 @@ export default function ReportButton({ targetType, targetId, small }) {
                 alignItems: "center",
               }}
             >
-              <strong style={{ fontSize: 18 }}>🚩 신고하기</strong>
+              <strong style={{ fontSize: 18 }}>
+                <BoardActionIcon name="report" /> 신고하기
+              </strong>
               <button
                 type="button"
                 className="btn btn-ghost btn-xs"

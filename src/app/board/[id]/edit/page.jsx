@@ -9,6 +9,7 @@ import { ApiError, posts as postsApi } from "@/lib/api-client";
 import { isAdmin, useCurrentUser } from "@/lib/use-current-user";
 import ImageUploader from "@/components/ImageUploader";
 import PostComposerEditor from "@/components/PostComposerEditor";
+import BoardActionIcon from "@/components/BoardActionIcon";
 
 /**
  * 글 수정 (hurock).
@@ -264,7 +265,8 @@ export default function PostEditPage({ params }) {
                 checked={pinned}
                 onChange={(e) => setPinned(e.target.checked)}
               />
-              📌 상단 고정
+              <BoardActionIcon name="pin" />
+              상단 고정
             </label>
             <label style={{ display: "flex", gap: 6, alignItems: "center" }}>
               <input
@@ -272,7 +274,8 @@ export default function PostEditPage({ params }) {
                 checked={locked}
                 onChange={(e) => setLocked(e.target.checked)}
               />
-              🔒 잠금 (댓글 차단)
+              <BoardActionIcon name="lock" />
+              잠금 (댓글 차단)
             </label>
             <span style={{ color: "var(--muted)" }}>운영자 전용</span>
           </div>
