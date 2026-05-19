@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatAuthor, isAnonymousEntry } from "@/lib/anonymous";
+import { resolveBoardCategoryLabel } from "@/lib/board-links";
 
 function formatDate(value) {
   if (!value) return "";
@@ -34,7 +35,7 @@ export default function BoardRow({ post, head }) {
   const hasAuthorShape = "authorId" in post || "authorNickname" in post || "anonymousMarker" in post;
   const author = hasAuthorShape ? formatAuthor(post, post.authorDisplayName) : post.author;
   const guest = hasAuthorShape && isAnonymousEntry(post);
-  const category = post.category || post.categoryName || post.categoryLabel || post.categorySlug || "글";
+  const category = resolveBoardCategoryLabel(post);
   const title = post.title || "(제목 없음)";
   const comments =
     typeof post.comments === "number"

@@ -6,7 +6,8 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import PageShell from "@/components/PageShell";
 import StickerBadge from "@/components/StickerBadge";
 import { ApiError, posts as postsApi } from "@/lib/api-client";
-import { useCurrentUser } from "@/lib/use-current-user";
+import { buildBoardHref, buildBoardNewHref } from "@/lib/board-links";
+import { isAdmin, useCurrentUser } from "@/lib/use-current-user";
 import ImageUploader from "@/components/ImageUploader";
 import PostComposerEditor from "@/components/PostComposerEditor";
 
@@ -49,6 +50,7 @@ function BoardNewInner() {
   const presetSlug = searchParams.get("category");
   const { user } = useCurrentUser();
   const isAuthed = Boolean(user);
+  const userIsAdmin = isAdmin(user, "hurock");
 
   const [categories, setCategories] = useState(HUROCK_CATEGORY_FALLBACK);
   const [form, setForm] = useState({
@@ -75,7 +77,7 @@ function BoardNewInner() {
         const items = Array.isArray(data) ? data : data?.items || [];
         if (!alive || items.length === 0) return;
         const writable = items
-          .filter((c) => c.writeRoleMin !== "admin")
+          .filter((c) => c.writeRoleMin !== "admin" || userIsAdmin)
           .map((c) => ({
             slug: c.slug,
             name: c.name,
@@ -95,12 +97,14 @@ function BoardNewInner() {
     return () => {
       alive = false;
     };
-  }, [presetSlug]);
+  }, [presetSlug, userIsAdmin]);
 
   const selected = useMemo(
     () => categories.find((c) => c.slug === form.categorySlug) || null,
     [categories, form.categorySlug],
   );
+  const selectedCategoryHref = buildBoardHref({ categorySlug: form.categorySlug });
+  const currentWriteHref = buildBoardNewHref(form.categorySlug);
   const guestAllowedHere = Boolean(selected?.allowAnonymous);
   const mustLogin = !isAuthed && !guestAllowedHere;
 
@@ -134,7 +138,7 @@ function BoardNewInner() {
       }
       const res = await postsApi.create(payload);
       const newId = res?.id || res?.post?.id;
-      router.push(newId ? `/board/${newId}` : "/board");
+      router.push(newId ? `/board/${newId}` : selectedCategoryHref);
       router.refresh();
     } catch (err) {
       if (err instanceof ApiError) setError(err);
@@ -157,8 +161,8 @@ function BoardNewInner() {
               : "비회원도 글 쓸 수 있어요. 닉네임 비우면 'ㅇㅇ'이 됩니다."}
           </p>
         </div>
-        <Link href="/board" className="btn">
-          ← 게시판
+        <Link href={selectedCategoryHref} className="btn">
+          ← {selected?.name || "게시판"}
         </Link>
       </div>
 
@@ -209,7 +213,7 @@ function BoardNewInner() {
         {mustLogin ? (
           <div className="callout-box">
             <strong>회원 전용 카테고리</strong>
-            <Link href={`/login?returnTo=${encodeURIComponent("/board/new")}`}>로그인 →</Link>
+            <Link href={`/login?returnTo=${encodeURIComponent(currentWriteHref)}`}>로그인 →</Link>
           </div>
         ) : null}
 
@@ -279,7 +283,7 @@ function BoardNewInner() {
         ) : !mustLogin ? (
           <div className="callout-box">
             <strong>이미지 첨부는 회원만</strong>
-            <Link href={`/login?returnTo=${encodeURIComponent("/board/new")}`}>로그인 →</Link>
+            <Link href={`/login?returnTo=${encodeURIComponent(currentWriteHref)}`}>로그인 →</Link>
           </div>
         ) : null}
 
@@ -299,7 +303,7 @@ function BoardNewInner() {
           >
             {submitting ? "등록 중…" : "글 올리기"}
           </button>
-          <Link href="/board" className="btn">
+          <Link href={selectedCategoryHref} className="btn">
             취소
           </Link>
         </div>

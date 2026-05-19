@@ -8,6 +8,7 @@ import BoardRow from "@/components/BoardRow";
 import Pagination from "@/components/Pagination";
 import StickerBadge from "@/components/StickerBadge";
 import { posts as postsApi } from "@/lib/api-client";
+import { BOARD_ALL_CATEGORY, buildBoardHref, buildBoardNewHref } from "@/lib/board-links";
 
 const PAGE_SIZE = 20;
 
@@ -17,7 +18,7 @@ const SORTS = [
   { value: "views", label: "조회순" },
 ];
 
-const ALL = "all";
+const ALL = BOARD_ALL_CATEGORY;
 
 export default function BoardPage() {
   return (
@@ -108,28 +109,19 @@ function BoardInner() {
     categories.find((cat) => cat.slug === activeCat)?.name || "전체";
 
   function pushQuery(next) {
-    const qs = new URLSearchParams();
-    const cat = next.category ?? activeCat;
-    const sort = next.sort ?? sortParam;
-    const q = next.q ?? qParam;
-    const page = next.page ?? 1;
-    if (cat !== ALL) qs.set("category", cat);
-    if (sort !== "recent") qs.set("sort", sort);
-    if (q) qs.set("q", q);
-    if (page > 1) qs.set("page", String(page));
-    const s = qs.toString();
-    router.push(s ? `/board?${s}` : "/board");
+    router.push(
+      buildBoardHref({
+        categorySlug: next.category ?? activeCat,
+        sort: next.sort ?? sortParam,
+        q: next.q ?? qParam,
+        page: next.page ?? 1,
+      }),
+    );
   }
 
-  const buildPageHref = (n) => {
-    const qs = new URLSearchParams();
-    if (activeCat !== ALL) qs.set("category", activeCat);
-    if (sortParam !== "recent") qs.set("sort", sortParam);
-    if (qParam) qs.set("q", qParam);
-    if (n > 1) qs.set("page", String(n));
-    const s = qs.toString();
-    return s ? `/board?${s}` : "/board";
-  };
+  const buildPageHref = (n) =>
+    buildBoardHref({ categorySlug: activeCat, sort: sortParam, q: qParam, page: n });
+  const writeHref = buildBoardNewHref(activeCat);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
@@ -146,7 +138,7 @@ function BoardInner() {
           </h1>
           <p>잡담 / 공략 질문 / 콘테스트 후기 / 클립 공유. 비회원도 글 쓸 수 있어요.</p>
         </div>
-        <Link href="/board/new" className="btn btn-primary">
+        <Link href={writeHref} className="btn btn-primary">
           글쓰기
         </Link>
       </div>
@@ -255,7 +247,7 @@ function BoardInner() {
                   ? "허락방 첫 글의 주인공이 되어 주세요."
                   : "이 카테고리에 글이 아직 없어요."}
             </p>
-            <Link href="/board/new" className="btn btn-primary">
+            <Link href={writeHref} className="btn btn-primary">
               ✍️ 글쓰기
             </Link>
           </div>

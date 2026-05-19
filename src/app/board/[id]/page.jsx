@@ -10,6 +10,7 @@ import BoardFab from "@/components/BoardFab";
 import ReportButton from "@/components/ReportButton";
 import MarkdownBody from "@/components/MarkdownBody";
 import BoardActionIcon from "@/components/BoardActionIcon";
+import { buildBoardHref, buildBoardNewHref, resolveBoardCategoryLabel } from "@/lib/board-links";
 import {
   ApiError,
   buildApiUrl,
@@ -169,7 +170,7 @@ export default function BoardDetailPage({ params }) {
     if (!window.confirm("정말 삭제할까요?")) return;
     try {
       await postsApi.remove(post.id || id, { guestPassword });
-      window.location.href = "/board";
+      window.location.href = buildBoardHref({ categorySlug: post.categorySlug });
     } catch (err) {
       setActionMsg({ ok: false, text: err?.message || "삭제 실패" });
     }
@@ -311,7 +312,9 @@ export default function BoardDetailPage({ params }) {
   }
 
   const authorLabel = formatAuthor(post, post.authorDisplayName || post.user?.displayName);
-  const categoryName = post.categoryName || post.category || "글";
+  const categoryName = resolveBoardCategoryLabel(post);
+  const categoryHref = buildBoardHref({ categorySlug: post.categorySlug });
+  const writeHref = buildBoardNewHref(post.categorySlug);
 
   return (
     <PageShell activePath="/board">
@@ -319,25 +322,21 @@ export default function BoardDetailPage({ params }) {
         <div className="page-head board-detail-head">
           <div>
             <Link
-              href="/board"
-              style={{
-                display: "inline-block",
-                marginBottom: 8,
-                borderBottom: "2px solid var(--ink)",
-                fontSize: "0.84rem",
-                fontWeight: 800,
-              }}
+              href={categoryHref}
+              className="board-detail-backlink"
             >
-              ← 허락방 목록
+              ← {categoryName} 목록
             </Link>
             <h1>
               {post.pinned ? <BoardActionIcon name="pin" className="board-title-pin" /> : null}
               {post.title}
             </h1>
             <p>
-              <StickerBadge tone="cyan" rotate="l">
-                {categoryName}
-              </StickerBadge>{" "}
+              <Link href={categoryHref} className="board-detail-category-link">
+                <StickerBadge tone="cyan" rotate="l">
+                  {categoryName}
+                </StickerBadge>
+              </Link>{" "}
               {post.flair ? (
                 <StickerBadge tone="yellow" rotate="r">
                   [{post.flair}]
@@ -368,6 +367,7 @@ export default function BoardDetailPage({ params }) {
                 postId={post.id || id}
                 pinned={Boolean(post.pinned)}
                 locked={Boolean(post.locked)}
+                returnHref={categoryHref}
                 onChange={reloadAll}
               />
             ) : null}
@@ -620,7 +620,7 @@ export default function BoardDetailPage({ params }) {
               다음 글 이어보기
             </h2>
             <Link
-              href={`/board?category=${encodeURIComponent(post.categorySlug || "")}`}
+              href={categoryHref}
               className="btn btn-sm"
             >
               {categoryName} 전체 →
@@ -659,7 +659,7 @@ export default function BoardDetailPage({ params }) {
                       color: "var(--hot-pink, #ff3ea5)",
                     }}
                   >
-                    [{np.categoryName || categoryName}]
+                    [{resolveBoardCategoryLabel(np, categoryName)}]
                   </span>
                   <span
                     style={{
@@ -687,7 +687,7 @@ export default function BoardDetailPage({ params }) {
         </section>
       ) : null}
 
-      <BoardFab />
+      <BoardFab href={writeHref} />
     </PageShell>
   );
 

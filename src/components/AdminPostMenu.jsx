@@ -11,13 +11,14 @@ import BoardActionIcon from "@/components/BoardActionIcon";
  * Props:
  *   postId  : 글 ID
  *   pinned  : 현재 pinned 여부
+ *   returnHref: 삭제 후 돌아갈 게시판 링크
  *   onChange: 토글/삭제 후 호출 (parent 가 reload)
  *
  * Backend:
  *   PATCH /sites/hurock/posts/:id  { pinned: true|false }   (admin only)
  *   DELETE /sites/hurock/posts/:id                           (admin only, soft delete)
  */
-export default function AdminPostMenu({ postId, pinned, locked, onChange }) {
+export default function AdminPostMenu({ postId, pinned, locked, returnHref = "/board", onChange }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -98,7 +99,7 @@ export default function AdminPostMenu({ postId, pinned, locked, onChange }) {
       await apiFetch(`/sites/hurock/posts/${encodeURIComponent(postId)}`, {
         method: "DELETE",
       });
-      router.push("/board");
+      router.push(returnHref);
     } catch (err) {
       const m =
         err instanceof ApiError ? `${err.message} (${err.status})` : err?.message;

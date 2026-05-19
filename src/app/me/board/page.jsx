@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import PageShell from "@/components/PageShell";
 import StickerBadge from "@/components/StickerBadge";
 import { ApiError, apiFetch, comments as commentsApi } from "@/lib/api-client";
+import { resolveBoardCategoryLabel } from "@/lib/board-links";
 import { useCurrentUser } from "@/lib/use-current-user";
 
 const TABS = [
@@ -187,7 +188,7 @@ function Inner() {
                     marginTop: 4,
                   }}
                 >
-                  <span>{p.categoryName || p.categorySlug || "글"}</span>
+                  <span>{resolveBoardCategoryLabel(p)}</span>
                   <span>{formatTime(p.createdAt)}</span>
                   <span>조회 {p.viewCount ?? 0}</span>
                   <span>추천 {p.recommendCount ?? 0}</span>
