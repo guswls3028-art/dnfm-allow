@@ -9,6 +9,7 @@
     "architecture": "node scripts/check-architecture.mjs",
     "prebuild": "node scripts/check-architecture.mjs",
     "build": "next build",
+    "postbuild": "node scripts/prepare-standalone.mjs",
     "start": "node scripts/start.mjs",
     "start:next": "next start -p 3001"
   },
