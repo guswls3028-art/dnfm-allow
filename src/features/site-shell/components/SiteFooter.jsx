@@ -26,7 +26,7 @@ export default function SiteFooter() {
           <a href={siblingSite.href} target="_blank" rel="noreferrer" title={siblingSite.note}>
             ↗ {siblingSite.label} (dnfm.kr)
           </a>
-          <a href="mailto:allow@dnfm.kr">문의 메일</a>
+          <a href="mailto:hurock@dnfm.kr">문의 메일</a>
         </div>
       </div>
     </footer>

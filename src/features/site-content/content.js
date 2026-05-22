@@ -7,13 +7,13 @@
 
 export const siteMeta = {
   id: "hurock",
-  hostnames: ["hurock.dnfm.kr", "allow.dnfm.kr"],
+  hostnames: ["hurock.dnfm.kr"],
   brand: "허락공대",
   brandShort: "허락공대",
   wordmark: "허락공대",
   tagline: "던파 모바일 인터넷 방송",
   footerNote:
-    "허락공대 (hurock.dnfm.kr, legacy allow.dnfm.kr) 은 인터넷 방송인 허락의 비공식 팬 페이지 겸 방송 동선 정리 페이지입니다. 게임 관련 상표권은 각 권리자에게 있으며, 본 페이지는 어떠한 공식 인증도 받지 않았습니다."
+    "허락공대 (hurock.dnfm.kr) 는 인터넷 방송인 허락의 비공식 팬 페이지 겸 방송 동선 정리 페이지입니다. 게임 관련 상표권은 각 권리자에게 있으며, 본 페이지는 어떠한 공식 인증도 받지 않았습니다."
 };
 
 // 헤더 상단 nav 제거 — 빈 배열 (호환). 진입은 첫 화면 게시판 카테고리/콘테스트 카드로.
