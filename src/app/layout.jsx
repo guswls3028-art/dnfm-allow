@@ -1,4 +1,5 @@
 import "./globals.css";
+import { CurrentUserProvider } from "@/shared/auth/use-current-user";
 
 export const metadata = {
   title: {
@@ -35,7 +36,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        <CurrentUserProvider>{children}</CurrentUserProvider>
+      </body>
     </html>
   );
 }

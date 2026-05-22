@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -p 3001",
+    "architecture": "node scripts/check-architecture.mjs",
+    "prebuild": "node scripts/check-architecture.mjs",
     "build": "next build",
     "start": "node scripts/start.mjs",
     "start:next": "next start -p 3001"

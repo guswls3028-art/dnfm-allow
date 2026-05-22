@@ -1,0 +1,812 @@
+"use client";
+
+import Link from "next/link";
+import { use, useCallback, useEffect, useMemo, useState } from "react";
+import PageShell from "@/features/site-shell/components/PageShell";
+import StickerBadge from "@/shared/ui/StickerBadge";
+import AdminPostMenu from "@/features/board/components/AdminPostMenu";
+import AuthorCard from "@/features/board/components/AuthorCard";
+import BoardFab from "@/features/board/components/BoardFab";
+import ReportButton from "@/features/board/components/ReportButton";
+import MarkdownBody from "@/shared/ui/MarkdownBody";
+import BoardActionIcon from "@/features/board/components/BoardActionIcon";
+import { buildBoardHref, buildBoardNewHref, resolveBoardCategoryLabel } from "@/features/board/domain/board-links";
+import {
+  ApiError,
+  buildApiUrl,
+  comments as commentsApi,
+  posts as postsApi,
+} from "@/shared/api/api-client";
+import { formatAuthor } from "@/shared/domain/anonymous";
+import { isAdmin, useCurrentUser } from "@/shared/auth/use-current-user";
+
+const MIN_GUEST_PW = 4;
+
+function formatTime(iso) {
+  if (!iso) return "";
+  const t = new Date(iso);
+  if (Number.isNaN(t.getTime())) return iso;
+  const diffSec = Math.floor((Date.now() - t.getTime()) / 1000);
+  if (diffSec < 60) return "방금";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}분 전`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}시간 전`;
+  if (diffSec < 86400 * 7) return `${Math.floor(diffSec / 86400)}일 전`;
+  return t.toLocaleDateString("ko-KR");
+}
+
+export default function BoardDetailScreen({ params }) {
+  const { id } = use(params);
+  const { user } = useCurrentUser();
+  const isAuthed = Boolean(user);
+  const userIsAdmin = isAdmin(user, "hurock");
+
+  const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [nextPosts, setNextPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [voteBusy, setVoteBusy] = useState(false);
+
+  const [commentBody, setCommentBody] = useState("");
+  const [commentNickname, setCommentNickname] = useState("");
+  const [commentPassword, setCommentPassword] = useState("");
+  const [commentBusy, setCommentBusy] = useState(false);
+  const [actionMsg, setActionMsg] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingBody, setEditingBody] = useState("");
+  const [replyParentId, setReplyParentId] = useState(null);
+  const [replyBody, setReplyBody] = useState("");
+  const [replyNickname, setReplyNickname] = useState("");
+  const [replyPassword, setReplyPassword] = useState("");
+  const [replyBusy, setReplyBusy] = useState(false);
+
+  const loadThread = useCallback(
+    async ({ silent = false, isAlive = () => true } = {}) => {
+      if (!silent) {
+        setLoading(true);
+        setError(null);
+      }
+      try {
+        const [pData, cData] = await Promise.all([
+          postsApi.detail(id),
+          commentsApi.list(id).catch(() => null),
+        ]);
+        if (!isAlive()) return;
+        const p = pData?.post || pData;
+        setPost(p);
+        const list = cData?.items || cData?.comments || [];
+        setComments(list);
+        // 같은 카테고리 다음 글 stream — 현재 글 제외 10건.
+        const slug = p?.categorySlug;
+        if (slug) {
+          try {
+            const nx = await postsApi.list({
+              categorySlug: slug,
+              sort: "recent",
+              pageSize: 11,
+              page: 1,
+            });
+            const arr = Array.isArray(nx?.items) ? nx.items : [];
+            if (isAlive()) setNextPosts(arr.filter((x) => x.id !== p.id).slice(0, 10));
+          } catch {
+            if (isAlive()) setNextPosts([]);
+          }
+        } else if (isAlive()) {
+          setNextPosts([]);
+        }
+      } catch (err) {
+        if (!isAlive()) return;
+        const nextError =
+          err instanceof ApiError ? err : { message: err?.message || "글 불러오기 실패" };
+        if (silent) {
+          setActionMsg({ ok: false, text: nextError.message });
+        } else {
+          setError(nextError);
+          setPost(null);
+        }
+      } finally {
+        if (!silent && isAlive()) setLoading(false);
+      }
+    },
+    [id],
+  );
+
+  useEffect(() => {
+    let alive = true;
+    loadThread({ isAlive: () => alive });
+    return () => {
+      alive = false;
+    };
+  }, [loadThread]);
+
+  const reloadAll = useCallback(() => loadThread({ silent: true }), [loadThread]);
+
+  async function handleVote(voteType) {
+    if (!isAuthed) {
+      window.location.href = `/login?returnTo=${encodeURIComponent(`/board/${id}`)}`;
+      return;
+    }
+    setVoteBusy(true);
+    setActionMsg(null);
+    try {
+      await postsApi.vote(id, voteType);
+      await reloadAll();
+    } catch (err) {
+      setActionMsg({ ok: false, text: err?.message || "투표 실패" });
+    } finally {
+      setVoteBusy(false);
+    }
+  }
+
+  async function handleComment(e) {
+    e.preventDefault();
+    if (!commentBody.trim() || commentBusy) return;
+    setCommentBusy(true);
+    setActionMsg(null);
+    try {
+      const payload = { body: commentBody.trim() };
+      if (!isAuthed) {
+        if (commentPassword.length < MIN_GUEST_PW) {
+          setActionMsg({ ok: false, text: `비밀번호는 ${MIN_GUEST_PW}자 이상이에요.` });
+          setCommentBusy(false);
+          return;
+        }
+        if (commentNickname.trim()) payload.guestNickname = commentNickname.trim();
+        payload.guestPassword = commentPassword;
+      }
+      await commentsApi.create(id, payload);
+      setCommentBody("");
+      setCommentPassword("");
+      await reloadAll();
+    } catch (err) {
+      setActionMsg({
+        ok: false,
+        text: err instanceof ApiError ? err.message : err?.message || "댓글 등록 실패",
+      });
+    } finally {
+      setCommentBusy(false);
+    }
+  }
+
+  async function handleDeletePost() {
+    if (!post) return;
+    const isOwnMember = post.authorId && user?.id === post.authorId;
+    let guestPassword;
+    if (!userIsAdmin && !isOwnMember && !post.authorId) {
+      const pw = window.prompt("비회원 글 — 작성 시 비밀번호를 입력하세요.");
+      if (!pw) return;
+      guestPassword = pw;
+    }
+    if (!window.confirm("정말 삭제할까요?")) return;
+    try {
+      await postsApi.remove(post.id || id, { guestPassword });
+      window.location.href = buildBoardHref({ categorySlug: post.categorySlug });
+    } catch (err) {
+      setActionMsg({ ok: false, text: err?.message || "삭제 실패" });
+    }
+  }
+
+  function startReply(c) {
+    setReplyParentId(c.id);
+    setReplyBody("");
+    setReplyNickname(commentNickname.trim());
+    setReplyPassword("");
+  }
+  function cancelReply() {
+    setReplyParentId(null);
+    setReplyBody("");
+  }
+  async function submitReply() {
+    if (!replyParentId || replyBusy) return;
+    const body = replyBody.trim();
+    if (!body) return;
+    setReplyBusy(true);
+    try {
+      const payload = { body, parentId: replyParentId };
+      if (!isAuthed) {
+        if (replyPassword.length < MIN_GUEST_PW) {
+          setActionMsg({ ok: false, text: `비밀번호는 ${MIN_GUEST_PW}자 이상이어야 해요.` });
+          setReplyBusy(false);
+          return;
+        }
+        if (replyNickname.trim()) payload.guestNickname = replyNickname.trim();
+        payload.guestPassword = replyPassword;
+      }
+      await commentsApi.create(post.id || id, payload);
+      cancelReply();
+      await reloadAll();
+    } catch (err) {
+      setActionMsg({ ok: false, text: err?.message || "답글 등록 실패" });
+    } finally {
+      setReplyBusy(false);
+    }
+  }
+
+  function startEditComment(c) {
+    setEditingCommentId(c.id);
+    setEditingBody(c.body || "");
+  }
+
+  function cancelEditComment() {
+    setEditingCommentId(null);
+    setEditingBody("");
+  }
+
+  async function saveEditComment(c) {
+    const body = editingBody.trim();
+    if (!body) return;
+    const isOwnMember = c.authorId && user?.id === c.authorId;
+    let guestPassword;
+    if (!userIsAdmin && !isOwnMember && !c.authorId) {
+      const pw = window.prompt("비회원 댓글 — 작성 시 비밀번호를 입력하세요.");
+      if (!pw) return;
+      guestPassword = pw;
+    }
+    try {
+      await commentsApi.update(c.id, { body, guestPassword });
+      cancelEditComment();
+      await reloadAll();
+    } catch (err) {
+      setActionMsg({ ok: false, text: err?.message || "댓글 수정 실패" });
+    }
+  }
+
+  async function handleDeleteComment(c) {
+    const isOwnMember = c.authorId && user?.id === c.authorId;
+    let guestPassword;
+    if (!userIsAdmin && !isOwnMember && !c.authorId) {
+      const pw = window.prompt("비회원 댓글 — 작성 시 비밀번호를 입력하세요.");
+      if (!pw) return;
+      guestPassword = pw;
+    }
+    if (!window.confirm("정말 삭제할까요?")) return;
+    try {
+      await commentsApi.remove(c.id, { guestPassword });
+      await reloadAll();
+    } catch (err) {
+      setActionMsg({ ok: false, text: err?.message || "댓글 삭제 실패" });
+    }
+  }
+
+  const commentsTree = useMemo(() => {
+    const tops = [];
+    const childMap = new Map();
+    for (const c of comments) {
+      if (c.parentId) {
+        if (!childMap.has(c.parentId)) childMap.set(c.parentId, []);
+        childMap.get(c.parentId).push(c);
+      } else {
+        tops.push(c);
+      }
+    }
+    return tops.map((t) => ({ ...t, replies: childMap.get(t.id) || [] }));
+  }, [comments]);
+
+  const canDeletePostAsAuthor = useMemo(() => {
+    if (!post) return false;
+    if (userIsAdmin) return true;
+    if (post.authorId && user?.id === post.authorId) return true;
+    if (!post.authorId) return true; // 비회원 글 — 비번 prompt
+    return false;
+  }, [post, user, userIsAdmin]);
+
+  if (loading) {
+    return (
+      <PageShell activePath="/board">
+        <div className="page-head">
+          <div>
+            <h1>불러오는 중…</h1>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <PageShell activePath="/board">
+        <div className="page-head">
+          <div>
+            <h1>게시글</h1>
+            <Link href="/board">← 허락방 목록</Link>
+          </div>
+        </div>
+        <div className="callout-box is-pending">
+          <strong>불러오기 실패</strong>
+          {error?.message || "글을 찾을 수 없어요."}
+        </div>
+      </PageShell>
+    );
+  }
+
+  const authorLabel = formatAuthor(post, post.authorDisplayName || post.user?.displayName);
+  const categoryName = resolveBoardCategoryLabel(post);
+  const categoryHref = buildBoardHref({ categorySlug: post.categorySlug });
+  const writeHref = buildBoardNewHref(post.categorySlug);
+
+  return (
+    <PageShell activePath="/board">
+      <div className="board-thread board-thread--hurock">
+        <div className="page-head board-detail-head">
+          <div>
+            <Link
+              href={categoryHref}
+              className="board-detail-backlink"
+            >
+              ← {categoryName} 목록
+            </Link>
+            <h1>
+              {post.pinned ? <BoardActionIcon name="pin" className="board-title-pin" /> : null}
+              {post.title}
+            </h1>
+            <p>
+              <Link href={categoryHref} className="board-detail-category-link">
+                <StickerBadge tone="cyan" rotate="l">
+                  {categoryName}
+                </StickerBadge>
+              </Link>{" "}
+              {post.flair ? (
+                <StickerBadge tone="yellow" rotate="r">
+                  [{post.flair}]
+                </StickerBadge>
+              ) : null}{" "}
+              {authorLabel} · {formatTime(post.createdAt)} · 조회 {post.viewCount ?? "-"}
+            </p>
+          </div>
+          <div className="board-detail-actions">
+            <ReportButton targetType="post" targetId={post.id || id} />
+            {canDeletePostAsAuthor ? (
+              <Link
+                href={`/board/${encodeURIComponent(post.id || id)}/edit`}
+                className="btn btn-sm board-tool"
+              >
+                <BoardActionIcon name="edit" />
+                수정
+              </Link>
+            ) : null}
+            {canDeletePostAsAuthor ? (
+              <button type="button" className="btn btn-sm board-tool" onClick={handleDeletePost}>
+                <BoardActionIcon name="trash" />
+                삭제
+              </button>
+            ) : null}
+            {userIsAdmin ? (
+              <AdminPostMenu
+                postId={post.id || id}
+                pinned={Boolean(post.pinned)}
+                locked={Boolean(post.locked)}
+                returnHref={categoryHref}
+                onChange={reloadAll}
+              />
+            ) : null}
+          </div>
+        </div>
+
+        <div className="board-thread-label">게시물</div>
+        <article className="form-block board-detail-article">
+          <MarkdownBody source={post.body} format={post.bodyFormat} />
+          {Array.isArray(post.attachmentR2Keys) && post.attachmentR2Keys.length > 0 ? (
+            <div
+              className="board-detail-attachments"
+              style={{
+                marginTop: 14,
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: 10,
+              }}
+            >
+              {post.attachmentR2Keys.map((k, i) => (
+                <a
+                  key={`${k}-${i}`}
+                  href={buildApiUrl(`/uploads/r2/${encodeURIComponent(k)}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "block",
+                    border: "2px solid var(--ink, #1a1a1a)",
+                    borderRadius: 8,
+                    overflow: "hidden",
+                    background: "var(--paper, #fffef7)",
+                  }}
+                >
+                  <img
+                    src={buildApiUrl(`/uploads/r2/${encodeURIComponent(k)}`)}
+                    alt=""
+                    loading="lazy"
+                    style={{ width: "100%", height: "auto", display: "block" }}
+                  />
+                </a>
+              ))}
+            </div>
+          ) : null}
+        </article>
+
+        <div className="board-detail-footer">
+          <button
+            type="button"
+            className="btn btn-sm btn-primary"
+            onClick={() => handleVote("recommend")}
+            disabled={voteBusy}
+          >
+            ▲ 추천 {post.recommendCount ?? post.likes ?? 0}
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => handleVote("downvote")}
+            disabled={voteBusy}
+          >
+            ▼ 비추 {post.downvoteCount ?? post.dislikes ?? 0}
+          </button>
+          {actionMsg ? (
+            <span className={actionMsg.ok ? "board-action-msg" : "board-action-msg is-error"}>
+              {actionMsg.text}
+            </span>
+          ) : null}
+        </div>
+
+        {post.author ? (
+          <div className="board-detail-author">
+            <div className="board-thread-sub-label">작성자</div>
+            <AuthorCard
+              author={{
+                displayName: post.author.displayName || post.authorDisplayName,
+                avatarR2Key: post.author.avatarR2Key,
+                dnfProfile: post.author.dnfProfile,
+              }}
+            />
+          </div>
+        ) : null}
+
+        <section className="section board-comments-section" aria-labelledby="comments">
+          <div className="board-thread-label board-thread-label--comments">댓글</div>
+          <div className="section-head">
+            <h2 id="comments">댓글 ({comments.length})</h2>
+          </div>
+          <div className="grid board-comment-list">
+          {commentsTree.length === 0 ? (
+            <article className="card" style={{ padding: 14 }}>
+              <p>아직 댓글이 없어요. 첫 댓글 남기기 ↓</p>
+            </article>
+          ) : (
+            commentsTree.flatMap((top) => {
+              const rows = [renderHurockCommentRow(top, false)];
+              for (const reply of top.replies) {
+                rows.push(renderHurockCommentRow(reply, true));
+              }
+              if (replyParentId === top.id) {
+                rows.push(
+                  <article
+                    key={`reply-form-${top.id}`}
+                    className="card board-reply-form"
+                    style={{
+                      flexDirection: "column",
+                      gap: 6,
+                      padding: 14,
+                      marginLeft: 28,
+                      borderLeft: "3px solid var(--hot-pink, #ff3ea5)",
+                    }}
+                  >
+                    <strong style={{ fontSize: "0.85rem" }}>
+                      <BoardActionIcon name="reply" className="board-comment-reply-mark" />
+                      {formatAuthor(top, top.authorDisplayName)} 에게 답글
+                        </strong>
+                        {!isAuthed ? (
+                          <div
+                            className="board-comment-guest-fields"
+                            style={{
+                              display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: 6,
+                        }}
+                      >
+                        <label className="board-guest-field">
+                          <span>닉네임</span>
+                          <input
+                            className="form-input"
+                            placeholder="ㅇㅇ"
+                            value={replyNickname}
+                            maxLength={32}
+                            autoComplete="nickname"
+                            onChange={(e) => setReplyNickname(e.target.value)}
+                          />
+                        </label>
+                        <label className="board-guest-field">
+                          <span>비밀번호</span>
+                          <input
+                            className="form-input"
+                            type="password"
+                            placeholder={`${MIN_GUEST_PW}자 이상`}
+                            value={replyPassword}
+                            maxLength={128}
+                            autoComplete="new-password"
+                            onChange={(e) => setReplyPassword(e.target.value)}
+                          />
+                        </label>
+                      </div>
+                    ) : null}
+                    <textarea
+                      className="form-textarea"
+                      rows={2}
+                      value={replyBody}
+                      onChange={(e) => setReplyBody(e.target.value)}
+                      placeholder="답글 작성…"
+                    />
+                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                      <button
+                        type="button"
+                        className="btn btn-xs"
+                        onClick={cancelReply}
+                      >
+                        취소
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-primary"
+                        onClick={submitReply}
+                        disabled={replyBusy || !replyBody.trim()}
+                      >
+                        {replyBusy ? "등록 중…" : "답글 등록"}
+                      </button>
+                    </div>
+                  </article>,
+                );
+              }
+              return rows;
+            })
+          )}
+        </div>
+
+        {post.locked ? (
+          <div className="callout-box" style={{ marginTop: 14 }}>
+            <strong>잠긴 글</strong>
+            댓글을 달 수 없어요.
+          </div>
+        ) : (
+          <form className="form-block board-comment-form" onSubmit={handleComment}>
+            <p
+              style={{
+                color: "var(--muted)",
+                fontSize: "0.78rem",
+                margin: "0 0 8px",
+              }}
+            >
+              정책 위반 댓글은 삭제될 수 있어요.
+            </p>
+            {!isAuthed ? (
+              <div className="board-comment-guest-fields">
+                <label className="board-guest-field">
+                  <span>닉네임</span>
+                  <input
+                    className="form-input"
+                    placeholder="ㅇㅇ"
+                    maxLength={32}
+                    value={commentNickname}
+                    autoComplete="nickname"
+                    onChange={(e) => setCommentNickname(e.target.value)}
+                  />
+                </label>
+                <label className="board-guest-field">
+                  <span>비밀번호</span>
+                  <input
+                    className="form-input"
+                    type="password"
+                    placeholder={`${MIN_GUEST_PW}자 이상`}
+                    maxLength={128}
+                    value={commentPassword}
+                    autoComplete="new-password"
+                    onChange={(e) => setCommentPassword(e.target.value)}
+                  />
+                </label>
+              </div>
+            ) : null}
+            <div className="form-row">
+              <label htmlFor="comment-body">댓글 남기기</label>
+              <textarea
+                id="comment-body"
+                className="form-textarea"
+                value={commentBody}
+                onChange={(e) => setCommentBody(e.target.value)}
+                placeholder={isAuthed ? "짧게 한 줄도 OK" : "비회원도 댓글 가능 — 짧게 한 줄도 OK"}
+                style={{ minHeight: 84 }}
+                disabled={commentBusy}
+              />
+            </div>
+            {actionMsg && !actionMsg.ok ? (
+              <div className="callout-box is-pending">
+                <strong>실패</strong>
+                {actionMsg.text}
+              </div>
+            ) : null}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={commentBusy || !commentBody.trim()}
+            >
+              {commentBusy ? "등록 중…" : "댓글 등록"}
+            </button>
+          </form>
+        )}
+      </section>
+      </div>
+
+      {nextPosts.length > 0 ? (
+        <section
+          className="section board-next-posts"
+          aria-labelledby="next-posts"
+          style={{ marginTop: 22 }}
+        >
+          <div className="section-head">
+            <h2 id="next-posts">
+              <StickerBadge tone="cyan" rotate="l">
+                {categoryName}
+              </StickerBadge>{" "}
+              다음 글 이어보기
+            </h2>
+            <Link
+              href={categoryHref}
+              className="btn btn-sm"
+            >
+              {categoryName} 전체 →
+            </Link>
+          </div>
+          <ul
+            style={{
+              display: "grid",
+              gap: 6,
+              marginTop: 10,
+              listStyle: "none",
+              padding: 0,
+            }}
+          >
+            {nextPosts.map((np) => (
+              <li key={np.id}>
+                <Link
+                  href={`/board/${encodeURIComponent(np.id)}`}
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    alignItems: "baseline",
+                    padding: "10px 12px",
+                    border: "2px dashed var(--ink, #1a1a1a)",
+                    background: "var(--paper, #fffef7)",
+                    borderRadius: 6,
+                    textDecoration: "none",
+                    color: "inherit",
+                  }}
+                >
+                  <span
+                    style={{
+                      flexShrink: 0,
+                      fontSize: "0.72rem",
+                      fontWeight: 800,
+                      color: "var(--hot-pink, #ff3ea5)",
+                    }}
+                  >
+                    [{resolveBoardCategoryLabel(np, categoryName)}]
+                  </span>
+                  <span
+                    style={{
+                      flex: 1,
+                      fontWeight: 700,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {np.title || "(제목 없음)"}
+                  </span>
+                  <span className="board-next-posts__stat" style={{ color: "var(--muted)", fontSize: "0.78rem", flexShrink: 0 }}>
+                    <BoardActionIcon name="message" />
+                    {np.commentCount ?? 0}
+                  </span>
+                  <span className="board-next-posts__stat" style={{ color: "var(--muted)", fontSize: "0.78rem", flexShrink: 0 }}>
+                    <BoardActionIcon name="eye" />
+                    {np.viewCount ?? 0}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <BoardFab href={writeHref} />
+    </PageShell>
+  );
+
+  function renderHurockCommentRow(c, isReply) {
+    const isOwn = c.authorId && user?.id === c.authorId;
+    const canEditDelete = userIsAdmin || isOwn || !c.authorId;
+    const isEditing = editingCommentId === c.id;
+    return (
+      <article
+        key={c.id || `${c.authorNickname}-${c.createdAt}`}
+        className={`card board-comment-card${isReply ? " is-reply" : ""}`}
+        style={{
+          flexDirection: "row",
+          gap: 14,
+          padding: 14,
+          ...(isReply
+            ? { marginLeft: 28, borderLeft: "3px solid var(--accent-cyan, #06a3d6)" }
+            : {}),
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <div className="board-comment-header">
+            <div className="board-comment-meta">
+              {isReply ? <BoardActionIcon name="reply" className="board-comment-reply-mark" /> : null}
+              <strong style={{ fontFamily: "var(--font-display)" }}>
+                {formatAuthor(c, c.authorDisplayName || c.user?.displayName)}
+              </strong>
+              <span className="board-comment-time">
+                {formatTime(c.createdAt)}
+              </span>
+            </div>
+            <div className="board-comment-actions" aria-label="댓글 도구">
+              <ReportButton targetType="comment" targetId={c.id} small compact />
+              {!isReply && !isEditing ? (
+                <button
+                  type="button"
+                  className="btn btn-xs board-tool board-tool--icon"
+                  onClick={() => startReply(c)}
+                  title="답글"
+                  aria-label="답글"
+                >
+                  <BoardActionIcon name="reply" />
+                </button>
+              ) : null}
+              {canEditDelete && !isEditing ? (
+                <button
+                  type="button"
+                  className="btn btn-xs board-tool board-tool--icon"
+                  onClick={() => startEditComment(c)}
+                  title="댓글 수정"
+                  aria-label="댓글 수정"
+                >
+                  <BoardActionIcon name="edit" />
+                </button>
+              ) : null}
+              {canEditDelete ? (
+                <button
+                  type="button"
+                  className="btn btn-xs board-tool board-tool--icon"
+                  onClick={() => handleDeleteComment(c)}
+                  title="댓글 삭제"
+                  aria-label="댓글 삭제"
+                >
+                  <BoardActionIcon name="trash" />
+                </button>
+              ) : null}
+            </div>
+          </div>
+          {isEditing ? (
+            <div style={{ display: "grid", gap: 6 }}>
+              <textarea
+                className="form-textarea"
+                rows={3}
+                value={editingBody}
+                onChange={(e) => setEditingBody(e.target.value)}
+              />
+              <div className="board-comment-edit-actions" style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                <button type="button" className="btn btn-xs" onClick={cancelEditComment}>
+                  취소
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-xs btn-primary"
+                  onClick={() => saveEditComment(c)}
+                  disabled={!editingBody.trim()}
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="board-comment-body" style={{ whiteSpace: "pre-wrap" }}>{c.body}</p>
+          )}
+        </div>
+      </article>
+    );
+  }
+}

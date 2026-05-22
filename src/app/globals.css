@@ -110,13 +110,13 @@ button {
 
 /* ─────────────────────────────────────────────────────────── 글로벌 layout */
 
-.allow-shell {
+.hurock-shell {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
 }
 
-.allow-main {
+.hurock-main {
   flex: 1;
   width: min(1080px, calc(100% - 28px));
   margin: 0 auto;
@@ -125,7 +125,7 @@ button {
 
 /* ─────────────────────────────────────────────────────────── 헤더 */
 
-.allow-header {
+.hurock-header {
   position: sticky;
   top: 0;
   z-index: 30;
@@ -134,7 +134,7 @@ button {
   backdrop-filter: blur(8px);
 }
 
-.allow-header-inner {
+.hurock-header-inner {
   display: flex;
   width: min(1080px, calc(100% - 28px));
   align-items: center;
@@ -143,7 +143,7 @@ button {
   padding: 12px 0;
 }
 
-.allow-brand {
+.hurock-brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -156,11 +156,11 @@ button {
   transition: transform 120ms;
 }
 
-.allow-brand:hover {
+.hurock-brand:hover {
   transform: rotate(-1deg) translateY(-1px);
 }
 
-.allow-brand-mark {
+.hurock-brand-mark {
   display: grid;
   width: 32px;
   height: 32px;
@@ -175,40 +175,40 @@ button {
   overflow: hidden;
 }
 
-.allow-brand-mark--image {
+.hurock-brand-mark--image {
   padding: 0;
   background: var(--paper-2);
 }
 
-.allow-brand-mark--image img {
+.hurock-brand-mark--image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.allow-brand-wordmark {
+.hurock-brand-wordmark {
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 900;
   letter-spacing: -0.02em;
 }
 
-.allow-brand-sub {
+.hurock-brand-sub {
   margin-left: 4px;
   color: var(--ink-soft);
   font-size: 0.72rem;
   font-weight: 800;
 }
 
-.allow-nav {
+.hurock-nav {
   display: flex;
   flex: 1;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.allow-nav a {
+.hurock-nav a {
   display: inline-flex;
   align-items: center;
   padding: 7px 11px;
@@ -222,25 +222,25 @@ button {
   transition: transform 80ms;
 }
 
-.allow-nav a:hover {
+.hurock-nav a:hover {
   transform: translate(-1px, -1px);
   box-shadow: 2px 2px 0 var(--ink);
   background: var(--accent-2);
   color: var(--ink);
 }
 
-.allow-nav a.is-active {
+.hurock-nav a.is-active {
   background: var(--primary);
   color: var(--paper);
   box-shadow: 2px 2px 0 var(--ink);
 }
 
-.allow-header-right {
+.hurock-header-right {
   display: flex;
   gap: 6px;
 }
 
-.allow-header-cta {
+.hurock-header-cta {
   display: inline-flex;
   align-items: center;
   padding: 8px 12px;
@@ -253,13 +253,13 @@ button {
   box-shadow: 3px 3px 0 var(--primary);
 }
 
-.allow-header-cta:hover {
+.hurock-header-cta:hover {
   background: var(--primary);
   color: var(--paper);
   box-shadow: 3px 3px 0 var(--ink);
 }
 
-.allow-sibling-pill {
+.hurock-sibling-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -271,13 +271,13 @@ button {
   font-weight: 800;
 }
 
-.allow-sibling-pill:hover {
+.hurock-sibling-pill:hover {
   border-style: solid;
   background: var(--paper-2);
   color: var(--ink);
 }
 
-.allow-header-cta-sub {
+.hurock-header-cta-sub {
   display: inline-flex;
   align-items: center;
   padding: 8px 10px;
@@ -290,18 +290,18 @@ button {
   box-shadow: 3px 3px 0 var(--accent);
 }
 
-.allow-header-cta-sub:hover {
+.hurock-header-cta-sub:hover {
   background: var(--accent);
   color: var(--ink);
 }
 
-.allow-header-userwrap {
+.hurock-header-userwrap {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.allow-header-user {
+.hurock-header-user {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -315,18 +315,18 @@ button {
   box-shadow: 3px 3px 0 var(--accent-2);
 }
 
-.allow-header-user:hover {
+.hurock-header-user:hover {
   background: var(--accent-2);
 }
 
-.allow-header-user-name {
+.hurock-header-user-name {
   max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.allow-header-user-tag {
+.hurock-header-user-tag {
   display: inline-block;
   padding: 0 6px;
   border: 1px solid var(--ink);
@@ -337,7 +337,7 @@ button {
   letter-spacing: 0.04em;
 }
 
-.allow-header-logout {
+.hurock-header-logout {
   display: inline-flex;
   align-items: center;
   padding: 6px 10px;
@@ -350,21 +350,21 @@ button {
   cursor: pointer;
 }
 
-.allow-header-logout:hover {
+.hurock-header-logout:hover {
   background: var(--ink);
   color: var(--paper);
 }
 
 /* ─────────────────────────────────────────────────────────── 푸터 */
 
-.allow-footer {
+.hurock-footer {
   margin-top: 64px;
   padding: 28px 0 40px;
   border-top: 3px dashed var(--ink);
   background: var(--paper-2);
 }
 
-.allow-footer-inner {
+.hurock-footer-inner {
   display: grid;
   width: min(1080px, calc(100% - 28px));
   gap: 14px;
@@ -373,7 +373,7 @@ button {
   align-items: start;
 }
 
-.allow-footer p {
+.hurock-footer p {
   margin: 0 0 6px;
   color: var(--ink);
   font-size: 0.88rem;
@@ -381,21 +381,21 @@ button {
   line-height: 1.6;
 }
 
-.allow-footer small {
+.hurock-footer small {
   display: block;
   color: var(--muted);
   font-size: 0.74rem;
   line-height: 1.6;
 }
 
-.allow-footer-links {
+.hurock-footer-links {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   justify-self: end;
 }
 
-.allow-footer-links a {
+.hurock-footer-links a {
   padding: 6px 10px;
   border: 2px solid var(--ink);
   border-radius: var(--radius-sm);
@@ -404,14 +404,14 @@ button {
   font-weight: 800;
 }
 
-.allow-footer-links a:hover {
+.hurock-footer-links a:hover {
   background: var(--accent);
   box-shadow: 2px 2px 0 var(--ink);
 }
 
 /* ─────────────────────────────────────────────────────────── Hero */
 
-.allow-hero {
+.hurock-hero {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
@@ -428,7 +428,7 @@ button {
   overflow: hidden;
 }
 
-.allow-hero::after {
+.hurock-hero::after {
   content: "ALLOW!";
   position: absolute;
   right: -12px;
@@ -442,12 +442,12 @@ button {
   user-select: none;
 }
 
-.allow-hero-copy {
+.hurock-hero-copy {
   position: relative;
   z-index: 1;
 }
 
-.allow-hero-kicker {
+.hurock-hero-kicker {
   display: inline-block;
   margin: 0 0 12px;
   padding: 4px 10px;
@@ -460,7 +460,7 @@ button {
   transform: rotate(-2deg);
 }
 
-.allow-hero h1 {
+.hurock-hero h1 {
   margin: 0 0 14px;
   font-family: var(--font-display);
   font-size: clamp(2.2rem, 5.2vw, 3.6rem);
@@ -470,7 +470,7 @@ button {
   word-break: keep-all;
 }
 
-.allow-hero h1 .h-mark {
+.hurock-hero h1 .h-mark {
   display: inline-block;
   padding: 0 10px;
   background: var(--accent);
@@ -478,12 +478,12 @@ button {
   transform: rotate(-1.5deg);
 }
 
-.allow-hero h1 .h-strike {
+.hurock-hero h1 .h-strike {
   position: relative;
   display: inline-block;
 }
 
-.allow-hero h1 .h-strike::after {
+.hurock-hero h1 .h-strike::after {
   content: "";
   position: absolute;
   left: -4%;
@@ -495,7 +495,7 @@ button {
   z-index: -1;
 }
 
-.allow-hero p.allow-hero-body {
+.hurock-hero p.hurock-hero-body {
   margin: 0;
   max-width: 540px;
   color: var(--ink-soft);
@@ -504,7 +504,7 @@ button {
   word-break: keep-all;
 }
 
-.allow-hero-actions {
+.hurock-hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -512,19 +512,19 @@ button {
   align-items: flex-end;
 }
 
-.allow-hero-action-stack {
+.hurock-hero-action-stack {
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
 }
 
-.allow-hero-action-stack .sticker {
+.hurock-hero-action-stack .sticker {
   font-size: 0.7rem;
   padding: 2px 8px;
 }
 
-.allow-hero-portrait {
+.hurock-hero-portrait {
   position: relative;
   display: grid;
   place-items: center;
@@ -540,7 +540,7 @@ button {
 }
 
 /* 상단 빨강 띠 — 허락 프사 의 oni 빨강(#f04038)톤 액센트, 도장처럼 */
-.allow-hero-portrait::before {
+.hurock-hero-portrait::before {
   content: "";
   position: absolute;
   inset: 0 0 auto 0;
@@ -557,7 +557,7 @@ button {
 }
 
 /* 하단 노랑 sticker 띠 */
-.allow-hero-portrait::after {
+.hurock-hero-portrait::after {
   content: "";
   position: absolute;
   inset: auto 0 0 0;
@@ -566,7 +566,7 @@ button {
   border-top: 2px dashed var(--ink);
 }
 
-.allow-hero-portrait-inner {
+.hurock-hero-portrait-inner {
   display: grid;
   place-items: center;
   gap: 10px;
@@ -574,7 +574,7 @@ button {
   text-align: center;
 }
 
-.allow-hero-portrait-avatar {
+.hurock-hero-portrait-avatar {
   position: relative;
   display: grid;
   place-items: center;
@@ -594,14 +594,14 @@ button {
   z-index: 1;
 }
 
-.allow-hero-portrait-avatar.has-image {
+.hurock-hero-portrait-avatar.has-image {
   background:
     radial-gradient(closest-side, transparent 0, transparent calc(100% - 12px), var(--accent) calc(100% - 12px), var(--accent) calc(100% - 6px), var(--danger) calc(100% - 6px)),
     var(--paper);
 }
 
 /* 내부 이미지: 더블 ring 안에 정원 + 흰 배경 트리밍 */
-.allow-hero-portrait-avatar.has-image img {
+.hurock-hero-portrait-avatar.has-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -611,13 +611,13 @@ button {
   background: var(--paper);
 }
 
-.allow-hero-portrait strong {
+.hurock-hero-portrait strong {
   font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 900;
 }
 
-.allow-hero-portrait small {
+.hurock-hero-portrait small {
   color: var(--muted);
   font-size: 0.84rem;
   font-weight: 700;
@@ -1828,7 +1828,7 @@ button {
 /* ─────────────────────────────────────────────────────────── 미디어 */
 
 @media (max-width: 980px) {
-  .allow-hero {
+  .hurock-hero {
     grid-template-columns: 1fr;
   }
 
@@ -1846,11 +1846,11 @@ button {
     display: none;
   }
 
-  .allow-footer-inner {
+  .hurock-footer-inner {
     grid-template-columns: 1fr;
   }
 
-  .allow-footer-links {
+  .hurock-footer-links {
     justify-self: start;
   }
 
@@ -1874,28 +1874,28 @@ button {
 }
 
 @media (max-width: 720px) {
-  .allow-main {
+  .hurock-main {
     width: 100%;
     overflow-x: hidden;
     padding: 14px 12px 40px;
   }
 
-  .allow-header-inner {
+  .hurock-header-inner {
     width: 100%;
     padding: 10px 12px;
     flex-wrap: wrap;
   }
 
-  .allow-nav {
+  .hurock-nav {
     order: 3;
     width: 100%;
   }
 
-  .allow-hero {
+  .hurock-hero {
     padding: 22px 16px;
   }
 
-  .allow-hero h1 {
+  .hurock-hero h1 {
     font-size: clamp(1.7rem, 7vw, 2.2rem);
   }
 
@@ -2021,17 +2021,17 @@ button {
 }
 
 @media (max-width: 480px) {
-  .allow-main {
+  .hurock-main {
     width: calc(100% - 20px);
     padding: 12px 0 32px;
   }
 
-  .allow-header-inner {
+  .hurock-header-inner {
     flex-wrap: nowrap;
     gap: 10px;
   }
 
-  .allow-header-right {
+  .hurock-header-right {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -2039,51 +2039,51 @@ button {
     min-width: 0;
   }
 
-  .allow-brand {
+  .hurock-brand {
     gap: 7px;
     padding: 4px 8px;
   }
 
-  .allow-brand-wordmark {
+  .hurock-brand-wordmark {
     font-size: 1.06rem;
   }
 
-  .allow-header-cta,
-  .allow-header-cta-sub {
+  .hurock-header-cta,
+  .hurock-header-cta-sub {
     padding: 7px 9px;
     font-size: 0.76rem;
     box-shadow: 2px 2px 0 var(--primary);
     white-space: nowrap;
   }
 
-  .allow-header-userwrap {
+  .hurock-header-userwrap {
     min-width: 0;
   }
 
-  .allow-header-user {
+  .hurock-header-user {
     max-width: 118px;
     padding: 6px 8px;
     box-shadow: 2px 2px 0 var(--accent-2);
   }
 
-  .allow-header-user-name {
+  .hurock-header-user-name {
     max-width: 74px;
   }
 
-  .allow-header-user-tag,
-  .allow-header-logout {
+  .hurock-header-user-tag,
+  .hurock-header-logout {
     display: none;
   }
 
-  .allow-hero {
+  .hurock-hero {
     padding: 18px 12px;
   }
 
-  .allow-hero h1 {
+  .hurock-hero h1 {
     font-size: clamp(1.4rem, 7vw, 1.8rem);
   }
 
-  .allow-hero p.allow-hero-body {
+  .hurock-hero p.hurock-hero-body {
     font-size: 0.92rem;
   }
 
@@ -2104,12 +2104,12 @@ button {
     justify-content: center;
   }
 
-  .allow-footer-links {
+  .hurock-footer-links {
     width: 100%;
     justify-self: stretch;
   }
 
-  .allow-footer-links a {
+  .hurock-footer-links a {
     flex: 1 1 100%;
     text-align: center;
   }
@@ -3017,7 +3017,7 @@ button {
 
 /* ─────────────────────────────────────────────────────────── 헤더 햄버거 (좌) */
 
-.allow-hamburger {
+.hurock-hamburger {
   display: inline-grid;
   place-items: center;
   width: 38px;
@@ -3034,21 +3034,21 @@ button {
   flex-shrink: 0;
 }
 
-.allow-hamburger:hover {
+.hurock-hamburger:hover {
   background: var(--accent);
   transform: translate(-1px, -1px);
   box-shadow: 3px 3px 0 var(--ink);
 }
 
-.allow-header-inner {
+.hurock-header-inner {
   justify-content: flex-start;
 }
 
-.allow-brand {
+.hurock-brand {
   margin: 0;
 }
 
-.allow-header-right {
+.hurock-header-right {
   margin-left: auto;
 }
 
@@ -3193,10 +3193,10 @@ button {
   .side-menu__backdrop.is-open {
     display: none;
   }
-  .allow-hamburger {
+  .hurock-hamburger {
     display: none;
   }
-  .allow-shell {
+  .hurock-shell {
     padding-left: var(--sidebar-width);
   }
 }
@@ -4759,6 +4759,18 @@ button {
   gap: 8px;
 }
 
+.board-guest-field {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.board-guest-field span {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
 .board-thread--hurock {
   position: relative;
   margin-top: 18px;
@@ -5203,6 +5215,15 @@ button {
   padding: 0;
 }
 
+.report-button {
+  color: var(--hot-pink, #ff3ea5);
+  font-weight: 900;
+}
+
+.report-button .action-icon {
+  stroke-width: 2.4;
+}
+
 .board-title-pin {
   width: 0.86em;
   height: 0.86em;
@@ -5225,10 +5246,21 @@ button {
   color: var(--ink);
 }
 
+.board-detail-actions .report-button {
+  border-color: var(--hot-pink, #ff3ea5);
+  color: var(--hot-pink, #ff3ea5);
+  background: rgba(255, 62, 165, 0.10);
+}
+
 .board-detail-actions .board-tool:hover:not(:disabled),
 .board-detail-actions .admin-menu__trigger:hover:not(:disabled) {
   background: var(--paper);
   box-shadow: 2px 2px 0 var(--ink);
+}
+
+.board-detail-actions .report-button:hover:not(:disabled) {
+  background: rgba(255, 62, 165, 0.18);
+  color: var(--ink);
 }
 
 .admin-menu__trigger {
@@ -5329,6 +5361,12 @@ button {
   color: var(--ink-soft);
 }
 
+.board-comment-actions .report-button.board-tool--icon {
+  border-color: rgba(255, 62, 165, 0.34);
+  background: rgba(255, 62, 165, 0.12);
+  color: var(--hot-pink, #ff3ea5);
+}
+
 .board-comment-actions .board-tool--icon:hover:not(:disabled),
 .board-comment-actions .board-tool--icon:focus-visible {
   border-color: var(--ink);
@@ -5336,6 +5374,12 @@ button {
   color: var(--ink);
   transform: none;
   box-shadow: 1px 1px 0 var(--ink);
+}
+
+.board-comment-actions .report-button.board-tool--icon:hover:not(:disabled),
+.board-comment-actions .report-button.board-tool--icon:focus-visible {
+  background: rgba(255, 62, 165, 0.20);
+  color: var(--ink);
 }
 
 .board-comment-actions .board-tool--icon .action-icon {

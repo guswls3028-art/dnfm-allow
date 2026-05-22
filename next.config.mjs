@@ -4,6 +4,7 @@ const API_PROXY_BASE = (process.env.API_PROXY_BASE || "https://api.dnfm.kr").rep
 const nextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  productionBrowserSourceMaps: process.env.ENABLE_BROWSER_SOURCEMAPS === "true",
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${API_PROXY_BASE}/:path*` },
