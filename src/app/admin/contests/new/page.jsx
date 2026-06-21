@@ -1,4 +1,4 @@
-import AdminContestCreateScreen from "@/features/events/contests/screens/AdminContestCreateScreen";
+import AdminContestCreateScreen from "@/domains/events/contests/presentation/screens/AdminContestCreateScreen";
 
 export default function AdminContestCreatePage() {
   return <AdminContestCreateScreen />;

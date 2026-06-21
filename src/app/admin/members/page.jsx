@@ -1,4 +1,4 @@
-import AdminMembersScreen from "@/features/admin/screens/AdminMembersScreen";
+import AdminMembersScreen from "@/domains/admin/presentation/screens/AdminMembersScreen";
 
 export default function AdminMembersPage(props) {
   return <AdminMembersScreen {...props} />;

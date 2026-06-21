@@ -1,4 +1,4 @@
-import ProfileDeleteScreen from "@/features/profile/screens/ProfileDeleteScreen";
+import ProfileDeleteScreen from "@/domains/profile/presentation/screens/ProfileDeleteScreen";
 
 export default function ProfileDeletePage(props) {
   return <ProfileDeleteScreen {...props} />;

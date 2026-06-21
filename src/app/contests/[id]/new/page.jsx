@@ -1,4 +1,4 @@
-import ContestEntryFormScreen from "@/features/events/contests/screens/ContestEntryFormScreen";
+import ContestEntryFormScreen from "@/domains/events/contests/presentation/screens/ContestEntryFormScreen";
 
 export default function ContestEntryFormPage(props) {
   return <ContestEntryFormScreen {...props} />;

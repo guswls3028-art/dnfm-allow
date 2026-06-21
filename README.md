@@ -4,19 +4,20 @@
 
 ## 구조
 
-- `src/app/` — Next.js App Router route shell. 실제 화면 구현은 `src/features/**/screens/`.
-- `src/features/account/` — 내 활동/이벤트 화면
-- `src/features/admin/` — 운영자 dashboard, reports, settings, live/draw 관리 화면
-- `src/features/auth/` — 로그인/가입 화면
-- `src/features/board/` — 게시판 화면, 작성/수정, 댓글/신고, board domain helper
-- `src/features/events/contests/` — 콘테스트 목록/상세/참가/투표/결과/관리 UI
-- `src/features/broadcast/` — 방송 질문/라이브 운영 UI
-- `src/features/hero-banners/` — 홈 배너 운영 UI
-- `src/features/home/` — 홈, 히어로, 빠른 공지, 커뮤니티 보드
-- `src/features/play/` — 플레이/참여 페이지
-- `src/features/profile/` — 프로필, 던파 인증, 시청 플랫폼 필드
-- `src/features/site-content/` — 정적 콘텐츠 SSOT
-- `src/features/site-shell/` — PageShell/header/footer/side menu
+- `src/app/` — Next.js App Router adapter. 실제 화면 구현은 `src/domains/**/presentation/`.
+- `src/domains/account/` — 내 활동/이벤트 화면
+- `src/domains/admin/` — 운영자 dashboard, reports, settings, live/draw 관리 화면
+- `src/domains/auth/` — 로그인/가입 화면
+- `src/domains/board/` — 게시판 화면, 작성/수정, 댓글/신고, board domain helper
+- `src/domains/events/contests/` — 콘테스트 목록/상세/참가/투표/결과/관리 UI
+- `src/domains/events/history/` — 이벤트 히스토리 데이터와 화면
+- `src/domains/broadcast/` — 방송 질문/라이브 운영 UI
+- `src/domains/hero_banners/` — 홈 배너 운영 UI
+- `src/domains/home/` — 홈, 히어로, 빠른 공지, 커뮤니티 보드
+- `src/domains/play/` — 플레이/참여 페이지
+- `src/domains/profile/` — 프로필, 던파 인증, 시청 플랫폼 필드
+- `src/domains/site_content/` — 정적 콘텐츠 SSOT
+- `src/domains/site_shell/` — PageShell/header/footer/side menu
 - `src/shared/api/` — API client, upload helpers
 - `src/shared/auth/` — current user/session/admin role helpers
 - `src/shared/ui/` — feature 소유권이 없는 재사용 UI
@@ -41,4 +42,4 @@ EC2 단일 인스턴스 + Cloudflare CDN. newb와 같은 EC2 인스턴스에 다
 
 - 핵심 운영자 = **허락님 본인**. 어드민 UI 만으로 콘테스트 생성·심사·투표·발표 가능해야 함 (방장 없이 돌아가야 함).
 - 디자인 톤 = B급 감성. 정돈된 공식 톤 X.
-- 외부 링크는 `src/features/site-content/content.js` 에서 `url: null` + `reason` 패턴으로 비활성 사유를 표시한다. 확정되면 URL만 채운다.
+- 외부 링크는 `src/domains/site_content/domain/content.js` 에서 `url: null` + `reason` 패턴으로 비활성 사유를 표시한다. 확정되면 URL만 채운다.

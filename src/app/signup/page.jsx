@@ -1,4 +1,4 @@
-import SignupScreen from "@/features/auth/screens/SignupScreen";
+import SignupScreen from "@/domains/auth/presentation/screens/SignupScreen";
 
 export default function SignupPage(props) {
   return <SignupScreen {...props} />;

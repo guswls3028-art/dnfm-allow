@@ -1,4 +1,4 @@
-import AdminDrawsScreen from "@/features/admin/screens/AdminDrawsScreen";
+import AdminDrawsScreen from "@/domains/admin/presentation/screens/AdminDrawsScreen";
 
 export default function AdminDrawsPage(props) {
   return <AdminDrawsScreen {...props} />;

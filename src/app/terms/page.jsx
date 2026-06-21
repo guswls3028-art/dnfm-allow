@@ -1,4 +1,4 @@
-import TermsScreen from "@/features/site-content/screens/TermsScreen";
+import TermsScreen from "@/domains/site_content/presentation/screens/TermsScreen";
 
 export default function TermsPage(props) {
   return <TermsScreen {...props} />;

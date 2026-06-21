@@ -1017,6 +1017,81 @@ button {
   border-bottom: 2px solid var(--primary);
 }
 
+.section-count {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.contest-empty-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 22px;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgba(46, 196, 255, 0.28), transparent 48%),
+    linear-gradient(315deg, rgba(255, 210, 63, 0.34), transparent 46%),
+    var(--paper-2);
+  box-shadow: var(--shadow-1);
+}
+
+.contest-empty-copy {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.contest-empty-copy h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 4vw, 2.2rem);
+  line-height: 1.12;
+  word-break: keep-all;
+}
+
+.contest-empty-copy p {
+  max-width: 640px;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.94rem;
+  font-weight: 800;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.contest-empty-actions {
+  display: grid;
+  gap: 8px;
+  min-width: 142px;
+}
+
+.contest-empty-actions .btn {
+  width: 100%;
+}
+
+.contest-stage-empty {
+  background:
+    linear-gradient(90deg, rgba(255, 210, 63, 0.20), transparent 58%),
+    var(--paper);
+}
+
+@media (max-width: 720px) {
+  .contest-empty-hero {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .contest-empty-actions {
+    min-width: 0;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────── 게시판 */
 
 .board-list {

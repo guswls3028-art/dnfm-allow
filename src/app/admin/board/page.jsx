@@ -1,4 +1,4 @@
-import AdminBoardScreen from "@/features/admin/screens/AdminBoardScreen";
+import AdminBoardScreen from "@/domains/admin/presentation/screens/AdminBoardScreen";
 
 export default function AdminBoardPage(props) {
   return <AdminBoardScreen {...props} />;

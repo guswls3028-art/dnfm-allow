@@ -1,4 +1,4 @@
-import ContestResultsScreen from "@/features/events/contests/screens/ContestResultsScreen";
+import ContestResultsScreen from "@/domains/events/contests/presentation/screens/ContestResultsScreen";
 
 export default function ContestResultsPage(props) {
   return <ContestResultsScreen {...props} />;
